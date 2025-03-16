@@ -1,0 +1,63 @@
+provider: lkeap
+label:
+  en_US: LKEAP
+  zh_Hans: 腾讯知识引擎
+description:
+  en_US: Models provided by Tencent LKEAP.
+  zh_Hans: 腾讯知识引擎原子能力 提供的模型。
+icon_small:
+  en_US: icon_s_en.svg
+icon_large:
+  en_US: icon_l_en.svg
+background: "#E5E7EB"
+help:
+  title:
+    en_US: Get your API Key from LKEAP
+    zh_Hans: 从 腾讯知识引擎 获取 API Key
+  url:
+    en_US: https://console.cloud.tencent.com/lkeap/api
+supported_model_types:
+  - llm
+  - rerank
+  - text-embedding
+configurate_methods:
+  - predefined-model
+provider_credential_schema:
+  credential_form_schemas:
+    - label:
+        en_US: API Key
+      placeholder:
+        en_US: Enter your API Key
+        zh_Hans: 在此输入您的 API Key
+      required: true
+      type: secret-input
+      variable: api_key
+    - label:
+        en_US: Custom API endpoint URL
+        zh_Hans: 自定义 API endpoint 地址
+      placeholder:
+        en_US: Base URL, e.g. https://api.lkeap.cloud.tencent.com/v1
+        zh_Hans: Base URL, e.g. https://api.lkeap.cloud.tencent.com/v1
+      required: false
+      type: text-input
+      variable: endpoint_url
+models:
+  llm:
+    position: models/llm/_position.yaml
+    predefined:
+      - "models/llm/*.yaml"
+  rerank:
+    position: models/rerank/_position.yaml
+    predefined:
+      - models/rerank/*.yaml
+  text_embedding:
+    position: models/text_embedding/_position.yaml
+    predefined:
+      - models/text_embedding/*.yaml
+extra:
+  python:
+    provider_source: provider/lkeap.py
+    model_sources:
+      - models/llm/llm.py
+      - models/rerank/rerank.py
+      - models/text_embedding/text_embedding.py
