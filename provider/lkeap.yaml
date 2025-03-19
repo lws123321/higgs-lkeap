@@ -15,7 +15,7 @@ help:
     en_US: Get your API Key from LKEAP
     zh_Hans: 从 腾讯知识引擎 获取 API Key
   url:
-    en_US: https://console.cloud.tencent.com/lkeap/api
+    en_US: https://console.cloud.tencent.com/cam/capi
 supported_model_types:
   - llm
   - rerank
@@ -25,22 +25,21 @@ configurate_methods:
 provider_credential_schema:
   credential_form_schemas:
     - label:
-        en_US: API Key
+        en_US: Secret ID
       placeholder:
-        en_US: Enter your API Key
-        zh_Hans: 在此输入您的 API Key
+        en_US: Enter your Secret ID
+        zh_Hans: 在此输入您的 Secret ID
       required: true
       type: secret-input
-      variable: api_key
+      variable: secret_id
     - label:
-        en_US: Custom API endpoint URL
-        zh_Hans: 自定义 API endpoint 地址
+        en_US: Secret Key
       placeholder:
-        en_US: Base URL, e.g. https://api.lkeap.cloud.tencent.com/v1
-        zh_Hans: Base URL, e.g. https://api.lkeap.cloud.tencent.com/v1
-      required: false
-      type: text-input
-      variable: endpoint_url
+        en_US: Enter your Secret Key
+        zh_Hans: 在此输入您的 Secret Key
+      required: true
+      type: secret-input
+      variable: secret_key
 models:
   llm:
     position: models/llm/_position.yaml

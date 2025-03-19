@@ -1,29 +1,22 @@
+import json
 from typing import Optional
-import dashscope
-from dashscope.common.error import (
-    AuthenticationError,
-    InvalidParameter,
-    RequestFailure,
-    ServiceUnavailableError,
-    UnsupportedHTTPMethod,
-    UnsupportedModel,
-)
 from dify_plugin.entities.model.rerank import RerankDocument, RerankResult
 from dify_plugin.errors.model import (
     CredentialsValidateFailedError,
-    InvokeAuthorizationError,
-    InvokeBadRequestError,
-    InvokeConnectionError,
     InvokeError,
-    InvokeRateLimitError,
-    InvokeServerUnavailableError,
 )
 from dify_plugin.interfaces.model.rerank_model import RerankModel
 
+from tencentcloud.common import credential
+from tencentcloud.common.exception import TencentCloudSDKException
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.profile.http_profile import HttpProfile
+from tencentcloud.lkeap.v20240522 import lkeap_client, models
 
-class GTERerankModel(RerankModel):
+
+class LkeapRerankModel(RerankModel):
     """
-    Model class for GTE rerank model.
+    Model class for LKEAP rerank model.
     """
 
     def _invoke(
@@ -50,19 +43,36 @@ class GTERerankModel(RerankModel):
         """
         if len(docs) == 0:
             return RerankResult(model=model, docs=docs)
-        dashscope.api_key = credentials["dashscope_api_key"]
-        response = dashscope.TextReRank.call(
-            query=query, documents=docs, model=model, top_n=top_n, return_documents=True
-        )
+
+        if model != "lke-reranker-base":
+            raise ValueError("Invalid model name")
+        client = self._setup_lkeap_client(credentials)
+
+        # 实例化一个请求对象,每个接口都会对应一个request对象
+        req = models.RunRerankRequest()
+        params = {
+            "Query": query,
+            "Docs": docs,
+            "Model": model
+        }
+        req.from_json_string(json.dumps(params))
+
+        # 返回的resp是一个RunRerankResponse的实例，与请求对象对应
+        response = client.RunRerank(req)
+
         rerank_documents = []
-        if not response.output:
+
+        if not response.ScoreList:
             return RerankResult(model=model, docs=rerank_documents)
-        for _, result in enumerate(response.output.results):
+
+        ii = 0
+        for _, result in enumerate(response.ScoreList):
             rerank_document = RerankDocument(
-                index=result.index, score=result.relevance_score, text=result["document"]["text"]
+                index=ii, score=result, text=docs[ii]
             )
+            ii = ii + 1
             if score_threshold is not None:
-                if result.relevance_score >= score_threshold:
+                if result >= score_threshold:
                     rerank_documents.append(rerank_document)
             else:
                 rerank_documents.append(rerank_document)
@@ -70,26 +80,33 @@ class GTERerankModel(RerankModel):
 
     def validate_credentials(self, model: str, credentials: dict) -> None:
         """
-        Validate model credentials
-
-        :param model: model name
-        :param credentials: model credentials
-        :return:
+        Validate credentials
         """
         try:
-            self.invoke(
-                model=model,
-                credentials=credentials,
-                query="What is the capital of the United States?",
-                docs=[
-                    "Carson City is the capital city of the American state of Nevada. At the 2010 United States Census, Carson City had a population of 55,274.",
-                    "The Commonwealth of the Northern Mariana Islands is a group of islands in the Pacific Ocean that are a political division controlled by the United States. Its capital is Saipan.",
-                ],
-                score_threshold=0.8,
-            )
-        except Exception as ex:
-            print(ex)
-            raise CredentialsValidateFailedError(str(ex))
+            client = self._setup_lkeap_client(credentials)
+            req = models.ChatCompletionsRequest()
+            params = {
+                "Model": model,
+                "Messages": [{"Role": "user", "Content": "hello"}],
+                "TopP": 1,
+                "Temperature": 0,
+                "Stream": False,
+            }
+            req.from_json_string(json.dumps(params))
+            client.ChatCompletions(req)
+        except Exception as e:
+            raise CredentialsValidateFailedError(
+                f"Credentials validation failed: {e}")
+
+    def _setup_lkeap_client(self, credentials):
+        secret_id = credentials["secret_id"]
+        secret_key = credentials["secret_key"]
+        cred = credential.Credential(secret_id, secret_key)
+        httpProfile = HttpProfile()
+        clientProfile = ClientProfile()
+        clientProfile.httpProfile = httpProfile
+        client = lkeap_client.LkeapClient(cred, "ap-guangzhou", clientProfile)
+        return client
 
     @property
     def _invoke_error_mapping(self) -> dict[type[InvokeError], list[type[Exception]]]:
@@ -101,10 +118,4 @@ class GTERerankModel(RerankModel):
 
         :return: Invoke error mapping
         """
-        return {
-            InvokeConnectionError: [RequestFailure],
-            InvokeServerUnavailableError: [ServiceUnavailableError],
-            InvokeRateLimitError: [],
-            InvokeAuthorizationError: [AuthenticationError],
-            InvokeBadRequestError: [InvalidParameter, UnsupportedModel, UnsupportedHTTPMethod],
-        }
+        return {InvokeError: [TencentCloudSDKException]}

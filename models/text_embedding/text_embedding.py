@@ -43,9 +43,10 @@ class LkeTextEmbeddingModel(TextEmbeddingModel):
         client = self._setup_lkeap_client(credentials)
         embeddings = []
         token_usage = 0
+        params = {"Model": model, "Inputs": []}
         for input in texts:
             request = models.GetEmbeddingRequest()
-            params = {"Input": input}
+            params["Inputs"].append(input)
             request.from_json_string(json.dumps(params))
             response = client.GetEmbedding(request)
             usage = response.Usage.TotalTokens
@@ -84,10 +85,9 @@ class LkeTextEmbeddingModel(TextEmbeddingModel):
         secret_key = credentials["secret_key"]
         cred = credential.Credential(secret_id, secret_key)
         httpProfile = HttpProfile()
-        httpProfile.endpoint = "lkeap.tencentcloudapi.com"
         clientProfile = ClientProfile()
         clientProfile.httpProfile = httpProfile
-        client = lkeap_client.LkeapClient(cred, "", clientProfile)
+        client = lkeap_client.LkeapClient(cred, "ap-guangzhou", clientProfile)
         return client
 
     def _calc_response_usage(self, model: str, credentials: dict, tokens: int) -> EmbeddingUsage:

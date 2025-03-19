@@ -17,12 +17,16 @@ parameter_rules:
     max: 0.7
     help:
       zh_Hans: 控制生成结果的多样性和随机性。数值越小，越严谨；数值越大，越发散。
-      en_US: Control the diversity and randomness of generated results. The smaller the value, the more rigorous it is; the larger the value, the more divergent it is.  
+      en_US: Control the diversity and randomness of generated results. The smaller the value, the more rigorous it is; the larger the value, the more divergent it is.
   - name: max_tokens
     use_template: max_tokens
+    type: int
+    default: 4096
     min: 1
     max: 8192
-    default: 4096
+    help:
+      zh_Hans: 指定生成结果长度的上限。如果生成结果截断，可以调大该参数。
+      en_US: Specifies the upper limit on the length of generated results. If the generated results are truncated, you can increase this parameter.
 pricing:
   input: "4"
   output: "16"
