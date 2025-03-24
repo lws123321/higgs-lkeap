@@ -148,11 +148,16 @@ class LkeapLargeLanguageModel(LargeLanguageModel):
         return dict_list
 
     def _handle_stream_chat_response(self, model, credentials, prompt_messages, resp):
+
+        is_reasoning = False
         tool_call = None
         tool_calls = []
+
         for index, event in enumerate(resp):
             logging.debug("_handle_stream_chat_response, event: %s", event)
             data_str = event["data"]
+            if data_str == "[DONE]":
+                continue
             data = json.loads(data_str)
             choices = data.get("Choices", [])
             if not choices:
@@ -160,6 +165,11 @@ class LkeapLargeLanguageModel(LargeLanguageModel):
             choice = choices[0]
             delta = choice.get("Delta", {})
             message_content = delta.get("Content", "")
+
+            message_content, is_reasoning = self._wrap_thinking_by_reasoning_content(
+                delta, is_reasoning
+            )
+
             finish_reason = choice.get("FinishReason", "")
             usage = data.get("Usage", {})
             prompt_tokens = usage.get("PromptTokens", 0)
@@ -208,6 +218,7 @@ class LkeapLargeLanguageModel(LargeLanguageModel):
             else:
                 delta_chunk = LLMResultChunkDelta(
                     index=index, message=assistant_prompt_message)
+
             yield LLMResultChunk(model=model, prompt_messages=prompt_messages, delta=delta_chunk)
 
     def _handle_chat_response(self, credentials, model, prompt_messages, response):
@@ -266,6 +277,29 @@ class LkeapLargeLanguageModel(LargeLanguageModel):
         else:
             raise ValueError(f"Got unknown type {message}")
         return message_text
+
+    def _wrap_thinking_by_reasoning_content(self, delta: dict, is_reasoning: bool) -> tuple[str, bool]:
+        """
+        If the reasoning response is from delta.get("reasoning_content"), we wrap
+        it with HTML think tag.
+        :param delta: delta dictionary from LLM streaming response
+        :param is_reasoning: is reasoning
+        :return: tuple of (processed_content, is_reasoning)
+        """
+
+        content = delta.get("Content", "")
+        reasoning_content = delta.get("ReasoningContent")
+
+        if reasoning_content:
+            if not is_reasoning:
+                content = "<think>\n" + reasoning_content
+                is_reasoning = True
+            else:
+                content = reasoning_content
+        elif is_reasoning and content:
+            content = "\n</think>" + content
+            is_reasoning = False
+        return content, is_reasoning
 
     @property
     def _invoke_error_mapping(self) -> dict[type[InvokeError], list[type[Exception]]]:
