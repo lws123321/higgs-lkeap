@@ -1,7 +1,7 @@
-model: deepseek-r1
+model: deepseek-v3-0324
 label:
-  zh_Hans: deepseek-r1
-  en_US: deepseek-r1
+  zh_Hans: deepseek-v3-0324
+  en_US: deepseek-v3-0324
 model_type: llm
 features:
   - agent-thought
@@ -13,8 +13,8 @@ parameter_rules:
     use_template: temperature
     type: float
     default: 0.6
-    min: 0.5
-    max: 0.7
+    min: 0.0
+    max: 2.0
     help:
       zh_Hans: 控制生成结果的多样性和随机性。数值越小，越严谨；数值越大，越发散。
       en_US: Control the diversity and randomness of generated results. The smaller the value, the more rigorous it is; the larger the value, the more divergent it is.
@@ -28,7 +28,7 @@ parameter_rules:
       zh_Hans: 指定生成结果长度的上限。如果生成结果截断，可以调大该参数。
       en_US: Specifies the upper limit on the length of generated results. If the generated results are truncated, you can increase this parameter.
 pricing:
-  input: "4"
-  output: "16"
+  input: "2"
+  output: "8"
   unit: "0.000001"
   currency: RMB
