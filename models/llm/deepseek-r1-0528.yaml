@@ -1,13 +1,13 @@
-model: deepseek-r1
+model: deepseek-r1-0528
 label:
-  zh_Hans: deepseek-r1
-  en_US: deepseek-r1
+  zh_Hans: deepseek-r1-0528
+  en_US: deepseek-r1-0528
 model_type: llm
 features:
   - agent-thought
 model_properties:
   mode: chat
-  context_size: 96000
+  context_size: 128000
 parameter_rules:
   - name: temperature
     use_template: temperature

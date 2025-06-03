@@ -23,10 +23,19 @@ parameter_rules:
     type: int
     default: 4096
     min: 1
-    max: 8192
+    max: 16384
     help:
       zh_Hans: 指定生成结果长度的上限。如果生成结果截断，可以调大该参数。
       en_US: Specifies the upper limit on the length of generated results. If the generated results are truncated, you can increase this parameter.
+  - name: enable_search
+    type: boolean
+    default: false
+    label:
+      zh_Hans: 联网搜索
+      en_US: Web Search
+    help:
+      zh_Hans: 是否启用联网搜索。
+      en_US: Specifies whether to enable internet search capability.
 pricing:
   input: "2"
   output: "8"

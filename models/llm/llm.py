@@ -42,7 +42,8 @@ class LkeapLargeLanguageModel(LargeLanguageModel):
         messages_dict = self._convert_prompt_messages_to_dicts(prompt_messages)
         custom_parameters = {
             "Temperature": model_parameters.get("temperature", 0.6),
-            "MaxTokens": model_parameters.get("max_tokens", 4096)
+            "MaxTokens": model_parameters.get("max_tokens", 4096),
+            "EnableSearch": model_parameters.get("enable_search", False)
         }
         params = {
             "Model": model,
