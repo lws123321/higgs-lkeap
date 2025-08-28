@@ -43,7 +43,8 @@ class LkeapLargeLanguageModel(LargeLanguageModel):
         custom_parameters = {
             "Temperature": model_parameters.get("temperature", 0.6),
             "MaxTokens": model_parameters.get("max_tokens", 4096),
-            "EnableSearch": model_parameters.get("enable_search", False)
+            "EnableSearch": model_parameters.get("enable_search", False),
+            "Thinking": model_parameters.get("thinking", False)
         }
         params = {
             "Model": model,
