@@ -1,4 +1,4 @@
-model: deepseek-v3-0324
+model: deepseek-v3.1
 label:
   zh_Hans: deepseek-v3.1
   en_US: deepseek-v3.1
@@ -39,21 +39,12 @@ parameter_rules:
   - name: thinking
     type: boolean
     default: false
-    value_options:
-      - value: disabled
-        label:
-          zh_Hans: 关闭
-          en_US: Disabled
-      - value: enabled
-        label:
-          zh_Hans: 开启
-          en_US: Enabled
     label:
       zh_Hans: 思考模式
-      en_US: Thinking Mode
+      en_US: Thinking mode
     help:
-      zh_Hans: 思考模式。
-      en_US: Thinking Mode.
+      zh_Hans: 是否开启思考模式。
+      en_US: Whether to enable thinking mode.
 pricing:
   input: '2'
   output: '8'

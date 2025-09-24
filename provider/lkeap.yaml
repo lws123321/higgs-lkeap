@@ -1,8 +1,8 @@
 provider: lkeap
 author: lws123321
 label:
-  en_US: LKEAP
-  zh_Hans: 腾讯知识引擎
+  en_US: LKEAP-XYG
+  zh_Hans: 腾讯知识引擎-XYG
 description:
   en_US: Models provided by Tencent LKEAP.
   zh_Hans: 腾讯知识引擎原子能力 提供的模型。
