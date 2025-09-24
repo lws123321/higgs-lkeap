@@ -1,4 +1,4 @@
-version: 0.0.1
+version: 0.0.2
 type: plugin
 author: lws123321
 name: lkeap
@@ -6,8 +6,8 @@ label:
   en_US: LKEAP-XYG
   zh_Hans: 腾讯知识引擎-XYG
 description:
-  en_US: Models provide by Tencent LKEAP, such as deepseek-v3.1, deepseek-v3-0324, deepseek-r1-0528.
-  zh_Hans: 腾讯知识引擎大模型相关原子能力，如deepseek-v3.1, deepseek-v3-0324, deepseek-r1-0528.
+  en_US: Models provide by Tencent LKEAP, such as deepseek-v3.1,deepseek-v3.1-terminus, deepseek-v3-0324, deepseek-r1-0528.
+  zh_Hans: 腾讯知识引擎大模型相关原子能力，如deepseek-v3.1,deepseek-v3.1-terminus, deepseek-v3-0324, deepseek-r1-0528.
 icon: icon_s_en.svg
 resource:
   memory: 268435456

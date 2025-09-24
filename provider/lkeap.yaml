@@ -41,6 +41,14 @@ provider_credential_schema:
       required: true
       type: secret-input
       variable: secret_key
+    - label:
+        en_US: Api Key
+      placeholder:
+        en_US: Enter your Api Key
+        zh_Hans: 在此输入您的 Api Key,如需使用deepseek-v3.1及以上需填写
+      required: false
+      type: secret-input
+      variable: api_key
 models:
   llm:
     position: models/llm/_position.yaml

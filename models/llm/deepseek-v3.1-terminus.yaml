@@ -1,7 +1,7 @@
-model: deepseek-v3.1
+model: deepseek-v3.1-terminus
 label:
-  zh_Hans: deepseek-v3.1
-  en_US: deepseek-v3.1
+  zh_Hans: deepseek-v3.1-terminus
+  en_US: deepseek-v3.1-terminus
 model_type: llm
 features:
   - agent-thought

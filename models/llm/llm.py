@@ -51,7 +51,7 @@ class LkeapLargeLanguageModel(LargeLanguageModel):
         :return: LLM结果或生成器
         """
         # 仅对deepseek-v3.1模型使用HTTP请求逻辑，确保Thinking参数正确传递
-        if model == "deepseek-v3.1":
+        if model == "deepseek-v3.1" or model == "deepseek-v3.1-terminus":
             return self._invoke_with_http(model, credentials, prompt_messages, model_parameters, tools, stop, stream, user)
         else:
             return self._invoke_with_sdk(model, credentials, prompt_messages, model_parameters, tools, stop, stream, user)
@@ -68,7 +68,7 @@ class LkeapLargeLanguageModel(LargeLanguageModel):
         user: str | None = None,
     ) -> LLMResult | Generator:
         """
-        使用HTTP请求调用deepseek-v3.1模型，确保Thinking参数正确传递
+        使用HTTP请求调用deepseek-v3.1或deepseek-v3.1-terminus模型，确保Thinking参数正确传递
         :param model: 模型名称
         :param credentials: 认证信息
         :param prompt_messages: 提示消息列表
@@ -116,7 +116,7 @@ class LkeapLargeLanguageModel(LargeLanguageModel):
         user: str | None = None,
     ) -> LLMResult | Generator:
         """
-        使用SDK调用其他模型（原有逻辑）
+        使用SDK调用deepseek-v3.1或deepseek-v3.1-terminus模型（原有逻辑）
         :param model: 模型名称
         :param credentials: 认证信息
         :param prompt_messages: 提示消息列表
@@ -195,12 +195,12 @@ class LkeapLargeLanguageModel(LargeLanguageModel):
         
         # 根据腾讯云文档，使用secret_key作为Bearer token
         # secret_key = credentials.get("secret_key")
-        secret_key = "sk-lETsTqLHSwaYwj5qOUpewmoqLVuoba82THLeOgoefaqWRsUA"
-        if not secret_key:
-            raise InvokeError("Missing secret_key in credentials")
+        api_key = credentials["api_key"]
+        if not api_key:
+            raise InvokeError("Missing api_key in api_key")
         
         headers = {
-            'Authorization': f'Bearer {secret_key}',
+            'Authorization': f'Bearer {api_key}',
             'Content-Type': 'application/json; charset=utf-8',
             'Accept': 'application/json',
             'Accept-Charset': 'utf-8'
