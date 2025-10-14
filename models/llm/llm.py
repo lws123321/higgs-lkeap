@@ -50,8 +50,8 @@ class LkeapLargeLanguageModel(LargeLanguageModel):
         :param user: 用户标识
         :return: LLM结果或生成器
         """
-        # 仅对deepseek-v3.1模型使用HTTP请求逻辑，确保Thinking参数正确传递
-        if model == "deepseek-v3.1" or model == "deepseek-v3.1-terminus":
+        # 对特定 deepseek v3 系列模型使用 HTTP 请求逻辑，确保 Thinking 参数正确传递
+        if model in {"deepseek-v3.1", "deepseek-v3.1-terminus", "deepseek-v3.2-exp"}:
             return self._invoke_with_http(model, credentials, prompt_messages, model_parameters, tools, stop, stream, user)
         else:
             return self._invoke_with_sdk(model, credentials, prompt_messages, model_parameters, tools, stop, stream, user)
