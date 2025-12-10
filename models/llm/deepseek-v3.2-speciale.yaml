@@ -1,7 +1,7 @@
-model: deepseek-v3.2-exp
+model: deepseek-v3.2-speciale
 label:
-  zh_Hans: deepseek-v3.2-exp
-  en_US: deepseek-v3.2-exp
+  zh_Hans: deepseek-v3.2-speciale
+  en_US: deepseek-v3.2-speciale
 model_type: llm
 features:
   - agent-thought
@@ -13,8 +13,8 @@ parameter_rules:
     use_template: temperature
     type: float
     default: 0.6
-    min: 0.0
-    max: 2.0
+    min: 0.5
+    max: 0.7
     help:
       zh_Hans: 控制生成结果的多样性和随机性。数值越小，越严谨；数值越大，越发散。
       en_US: Control the diversity and randomness of generated results. The smaller the value, the more rigorous it is; the larger the value, the more divergent it is.
@@ -23,7 +23,7 @@ parameter_rules:
     type: int
     default: 4096
     min: 1
-    max: 16384
+    max: 65536
     help:
       zh_Hans: 指定生成结果长度的上限。如果生成结果截断，可以调大该参数。
       en_US: Specifies the upper limit on the length of generated results. If the generated results are truncated, you can increase this parameter.
@@ -36,17 +36,8 @@ parameter_rules:
     help:
       zh_Hans: 是否启用联网搜索。
       en_US: Specifies whether to enable internet search capability.
-  - name: thinking
-    type: boolean
-    default: false
-    label:
-      zh_Hans: 思考模式
-      en_US: Thinking mode
-    help:
-      zh_Hans: 是否开启思考模式。
-      en_US: Whether to enable thinking mode.
 pricing:
-  input: '2'
-  output: '3'
-  unit: '0.000001'
+  input: "4"
+  output: "16"
+  unit: "0.000001"
   currency: RMB

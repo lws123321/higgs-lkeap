@@ -1,7 +1,7 @@
-model: deepseek-v3.1-terminus
+model: deepseek-v3.2
 label:
-  zh_Hans: deepseek-v3.1-terminus
-  en_US: deepseek-v3.1-terminus
+  zh_Hans: deepseek-v3.2
+  en_US: deepseek-v3.2
 model_type: llm
 features:
   - agent-thought
@@ -23,7 +23,7 @@ parameter_rules:
     type: int
     default: 4096
     min: 1
-    max: 32768
+    max: 65536
     help:
       zh_Hans: 指定生成结果长度的上限。如果生成结果截断，可以调大该参数。
       en_US: Specifies the upper limit on the length of generated results. If the generated results are truncated, you can increase this parameter.
@@ -46,7 +46,7 @@ parameter_rules:
       zh_Hans: 是否开启思考模式。
       en_US: Whether to enable thinking mode.
 pricing:
-  input: '4'
-  output: '12'
+  input: '2'
+  output: '3'
   unit: '0.000001'
   currency: RMB
