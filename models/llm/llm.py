@@ -51,7 +51,7 @@ class LkeapLargeLanguageModel(LargeLanguageModel):
         :return: LLM结果或生成器
         """
         # 对特定 deepseek v3 系列模型使用 HTTP 请求逻辑，确保 Thinking 参数正确传递
-        if model in {"deepseek-v3.1", "deepseek-v3.1-terminus", "deepseek-v3.2", "deepseek-v3.2-speciale"}:
+        if model in {"deepseek-v3.1", "deepseek-v3.1-terminus", "deepseek-v3.2"}:
             return self._invoke_with_http(model, credentials, prompt_messages, model_parameters, tools, stop, stream, user)
         else:
             return self._invoke_with_sdk(model, credentials, prompt_messages, model_parameters, tools, stop, stream, user)
@@ -82,23 +82,21 @@ class LkeapLargeLanguageModel(LargeLanguageModel):
         messages_dict = self._convert_prompt_messages_to_openai_format(prompt_messages)
         thinking_type = "enabled" if model_parameters.get("thinking", False) else "disabled"
         
-        # 根据模型和思考模式设置 max_tokens 默认值
-        # 只有 deepseek-v3.2 系列在思考模式下使用 32768，其他情况统一使用 4096
-        if model in {"deepseek-v3.2", "deepseek-v3.2-speciale"}:
-            default_max_tokens = 32768 if thinking_type == "enabled" else 4096
-        else:
-            default_max_tokens = 4096
-        
         # 构造请求参数，遵循OpenAI标准格式（小写参数名）
         params = {
             "model": model,
             "messages": messages_dict,
             "stream": stream,
-            "temperature": model_parameters.get("temperature", 0.6),
-            "max_tokens": model_parameters.get("max_tokens", default_max_tokens),
-            "enable_search": model_parameters.get("enable_search", False),
             "thinking": {"type": thinking_type}
         }
+        
+        # 只有用户显式设置了这些参数时才传递
+        if "temperature" in model_parameters:
+            params["temperature"] = model_parameters["temperature"]
+        if "enable_search" in model_parameters:
+            params["enable_search"] = model_parameters["enable_search"]
+        if "max_tokens" in model_parameters:
+            params["max_tokens"] = model_parameters["max_tokens"]
         
         if stop:
             params["stop"] = stop
@@ -139,19 +137,17 @@ class LkeapLargeLanguageModel(LargeLanguageModel):
         messages_dict = self._convert_prompt_messages_to_dicts(prompt_messages)
         thinking_type = "enabled" if model_parameters.get("thinking", False) else "disabled"
         
-        # 根据模型和思考模式设置 max_tokens 默认值
-        # 只有 deepseek-v3.2 系列在思考模式下使用 32768，其他情况统一使用 4096
-        if model in {"deepseek-v3.2", "deepseek-v3.2-speciale"}:
-            default_max_tokens = 32768 if thinking_type == "enabled" else 4096
-        else:
-            default_max_tokens = 4096
-        
         custom_parameters = {
-            "Temperature": model_parameters.get("temperature", 0.6),
-            "MaxTokens": model_parameters.get("max_tokens", default_max_tokens),
-            "EnableSearch": model_parameters.get("enable_search", False),
             "Thinking": {"type": thinking_type}
         }
+        
+        # 只有用户显式设置了这些参数时才传递
+        if "temperature" in model_parameters:
+            custom_parameters["Temperature"] = model_parameters["temperature"]
+        if "enable_search" in model_parameters:
+            custom_parameters["EnableSearch"] = model_parameters["enable_search"]
+        if "max_tokens" in model_parameters:
+            custom_parameters["MaxTokens"] = model_parameters["max_tokens"]
         params = {
             "Model": model,
             "Messages": messages_dict,

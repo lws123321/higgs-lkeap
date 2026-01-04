@@ -1,4 +1,4 @@
-version: 0.0.4
+version: 0.0.5
 type: plugin
 author: lws123321
 name: lkeap
@@ -24,7 +24,7 @@ plugins:
   models:
     - provider/lkeap.yaml
 meta:
-  version: 0.0.4
+  version: 0.0.5
   arch:
     - amd64
     - arm64
@@ -32,6 +32,6 @@ meta:
     language: python
     version: "3.12"
     entrypoint: main
-created_at: 2025-03-15T19:34:58.986286+08:00
+created_at: 2026-01-04T15:00:00+08:00
 privacy: PRIVACY.md
 verified: false
