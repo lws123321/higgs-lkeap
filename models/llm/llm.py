@@ -27,6 +27,10 @@ logger = logging.getLogger(__name__)
 
 
 class LkeapLargeLanguageModel(LargeLanguageModel):
+
+    LKEAP_HTTP_MODELS = {"deepseek-v3.1", "deepseek-v3.1-terminus", "deepseek-v3.2"}
+    TOKENHUB_MODELS = {"deepseek-v4-flash", "deepseek-v4-pro"}
+
     def _invoke(
         self,
         model: str,
@@ -50,8 +54,7 @@ class LkeapLargeLanguageModel(LargeLanguageModel):
         :param user: 用户标识
         :return: LLM结果或生成器
         """
-        # 对特定 deepseek v3 系列模型使用 HTTP 请求逻辑，确保 Thinking 参数正确传递
-        if model in {"deepseek-v3.1", "deepseek-v3.1-terminus", "deepseek-v3.2"}:
+        if model in self.LKEAP_HTTP_MODELS or model in self.TOKENHUB_MODELS:
             return self._invoke_with_http(model, credentials, prompt_messages, model_parameters, tools, stop, stream, user)
         else:
             return self._invoke_with_sdk(model, credentials, prompt_messages, model_parameters, tools, stop, stream, user)
@@ -101,8 +104,7 @@ class LkeapLargeLanguageModel(LargeLanguageModel):
         if stop:
             params["stop"] = stop
 
-        # 使用直接HTTP请求
-        response = self._make_http_request(credentials, params)
+        response = self._make_http_request(model, credentials, params)
 
         if stream:
             return self._handle_stream_http_response(model, credentials, prompt_messages, response)
@@ -195,20 +197,32 @@ class LkeapLargeLanguageModel(LargeLanguageModel):
         client = lkeap_client.LkeapClient(cred, "ap-guangzhou", clientProfile)
         return client
 
-    def _make_http_request(self, credentials: dict, params: dict):
+    def _get_api_config(self, model: str, credentials: dict) -> tuple[str, str]:
         """
-        使用HTTP请求直接调用LKEAP API，遵循腾讯云OpenAI兼容接口规范
-        :param credentials: 认证信息，包含secret_key作为API key
+        根据模型名称返回对应的 API URL 和 API Key
+        v4 系列走 TokenHub 端点，其余走 LKEAP 端点
+        """
+        if model in self.TOKENHUB_MODELS:
+            url = "https://tokenhub.tencentmaas.com/v1/chat/completions"
+            api_key = credentials.get("tokenhub_api_key")
+            if not api_key:
+                raise InvokeError("Missing tokenhub_api_key for v4 models, please configure TokenHub Api Key")
+        else:
+            url = "https://api.lkeap.cloud.tencent.com/v1/chat/completions"
+            api_key = credentials.get("api_key")
+            if not api_key:
+                raise InvokeError("Missing api_key, please configure Api Key")
+        return url, api_key
+
+    def _make_http_request(self, model: str, credentials: dict, params: dict):
+        """
+        使用HTTP请求直接调用API，根据模型自动选择LKEAP或TokenHub端点
+        :param model: 模型名称，用于判断走哪个端点
+        :param credentials: 认证信息
         :param params: 请求参数
         :return: 响应对象
         """
-        url = "https://api.lkeap.cloud.tencent.com/v1/chat/completions"
-        
-        # 根据腾讯云文档，使用secret_key作为Bearer token
-        # secret_key = credentials.get("secret_key")
-        api_key = credentials["api_key"]
-        if not api_key:
-            raise InvokeError("Missing api_key in api_key")
+        url, api_key = self._get_api_config(model, credentials)
         
         headers = {
             'Authorization': f'Bearer {api_key}',

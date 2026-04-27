@@ -49,6 +49,15 @@ provider_credential_schema:
       required: false
       type: secret-input
       variable: api_key
+    - label:
+        en_US: TokenHub Api Key
+        zh_Hans: TokenHub Api Key
+      placeholder:
+        en_US: Enter your TokenHub Api Key
+        zh_Hans: 在此输入您的 TokenHub Api Key,如需使用deepseek-v4系列需填写
+      required: false
+      type: secret-input
+      variable: tokenhub_api_key
 models:
   llm:
     position: models/llm/_position.yaml
