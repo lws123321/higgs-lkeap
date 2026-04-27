@@ -28,8 +28,11 @@ logger = logging.getLogger(__name__)
 
 class LkeapLargeLanguageModel(LargeLanguageModel):
 
-    LKEAP_HTTP_MODELS = {"deepseek-v3.1", "deepseek-v3.1-terminus", "deepseek-v3.2"}
-    TOKENHUB_MODELS = {"deepseek-v4-flash", "deepseek-v4-pro"}
+    TOKENHUB_MODELS = {"deepseek-v3.1", "deepseek-v3.2", "deepseek-v4-flash", "deepseek-v4-pro"}
+
+    MODEL_NAME_MAP = {
+        "deepseek-v3.1": "deepseek-v3.1-terminus",
+    }
 
     def _invoke(
         self,
@@ -54,7 +57,7 @@ class LkeapLargeLanguageModel(LargeLanguageModel):
         :param user: 用户标识
         :return: LLM结果或生成器
         """
-        if model in self.LKEAP_HTTP_MODELS or model in self.TOKENHUB_MODELS:
+        if model in self.TOKENHUB_MODELS:
             return self._invoke_with_http(model, credentials, prompt_messages, model_parameters, tools, stop, stream, user)
         else:
             return self._invoke_with_sdk(model, credentials, prompt_messages, model_parameters, tools, stop, stream, user)
@@ -84,10 +87,10 @@ class LkeapLargeLanguageModel(LargeLanguageModel):
         """
         messages_dict = self._convert_prompt_messages_to_openai_format(prompt_messages)
         thinking_type = "enabled" if model_parameters.get("thinking", False) else "disabled"
+        request_model = self.MODEL_NAME_MAP.get(model, model)
         
-        # 构造请求参数，遵循OpenAI标准格式（小写参数名）
         params = {
-            "model": model,
+            "model": request_model,
             "messages": messages_dict,
             "stream": stream,
             "thinking": {"type": thinking_type}
@@ -199,19 +202,13 @@ class LkeapLargeLanguageModel(LargeLanguageModel):
 
     def _get_api_config(self, model: str, credentials: dict) -> tuple[str, str]:
         """
-        根据模型名称返回对应的 API URL 和 API Key
-        v4 系列走 TokenHub 端点，其余走 LKEAP 端点
+        返回 TokenHub 端点的 API URL 和 API Key
+        TOKENHUB_MODELS 统一走 tokenhub.tencentmaas.com
         """
-        if model in self.TOKENHUB_MODELS:
-            url = "https://tokenhub.tencentmaas.com/v1/chat/completions"
-            api_key = credentials.get("tokenhub_api_key")
-            if not api_key:
-                raise InvokeError("Missing tokenhub_api_key for v4 models, please configure TokenHub Api Key")
-        else:
-            url = "https://api.lkeap.cloud.tencent.com/v1/chat/completions"
-            api_key = credentials.get("api_key")
-            if not api_key:
-                raise InvokeError("Missing api_key, please configure Api Key")
+        url = "https://tokenhub.tencentmaas.com/v1/chat/completions"
+        api_key = credentials.get("tokenhub_api_key")
+        if not api_key:
+            raise InvokeError("Missing tokenhub_api_key, please configure TokenHub Api Key")
         return url, api_key
 
     def _make_http_request(self, model: str, credentials: dict, params: dict):
